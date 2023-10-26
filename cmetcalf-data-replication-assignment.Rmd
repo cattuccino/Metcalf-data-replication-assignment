@@ -1,0 +1,22 @@
+---
+title: "Metcalf_Data_Replication_Assignment"
+author: "Cat Metcalf"
+date: "2023-10-26"
+output: html_document
+---
+
+# Data Replication Assignment
+
+This replication assignment is based on an article by Munro et al. that discusses the development of agriculture through human management in the Southern Levant.
+
+## Background
+
+## Supplementary NISP data from Table 1, p. 3
+(May not have to include)
+
+## Replication of Figure 2 with a Polynomial Regression Line and Spearman's Rho Calculation, p. 5
+Plots the relative abundance indices and calculates a Spearman's Rho with associated p-value (Descriptive analysis and 2 Inferential Analyses).
+
+Uses supplementary data: Figure 2a uses Table S3, 2b uses Table S4, 2c uses S5, and 2d uses S5.
+## Replication of Abundance Indices in Chronological Order Figure 2, p. 6
+(May end up removing but may do just to learn for myself)
