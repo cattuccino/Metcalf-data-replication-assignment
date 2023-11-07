@@ -18,22 +18,12 @@ First we must load in the data sets that provide the supplementary data:
 ```{r}
 library(curl)
 library(tidyverse)
-
-f <- curl("https://raw.githubusercontent.com/cattuccino/Metcalf-data-replication-assignment/main/AN588%20DataRep%20SuppData.csv")
-S2 <- read.csv(f, header = TRUE, sep = ",", stringsAsFactors = FALSE)
-head(S2)
+library(ggplot2)
 
 f <- curl("https://raw.githubusercontent.com/cattuccino/Metcalf-data-replication-assignment/main/AN588%20DataRep%20SuppData%202.csv")
 S3 <- read.csv(f, header = TRUE, sep = ",", stringsAsFactors = FALSE)
 head(S3)
 
-f <- curl("https://raw.githubusercontent.com/cattuccino/Metcalf-data-replication-assignment/main/AN588%20DataRep%20SuppData%203.csv")
-S4 <- read.csv(f, header = TRUE, sep = ",", stringsAsFactors = FALSE)
-head(S4)
-
-f <- curl("https://raw.githubusercontent.com/cattuccino/Metcalf-data-replication-assignment/main/AN588%20DataRep%20SuppData%204.csv")
-S5 <- read.csv(f, header = TRUE, sep = ",", stringsAsFactors = FALSE)
-head(S5)
 ```
 
 ## Replication of Figure 2 with a Polynomial Regression Line and Spearman's Rho Calculation, p. 5
@@ -44,29 +34,35 @@ Uses supplementary data: Figure 2a uses Table S3, 2b uses Table S4, 2c uses S5, 
 First we have to make a plot of the data: (do for each plot)
 ```{r}
 library(dplyr)
+```
 
-S3 |>
-mutate(PERIOD = as.numeric(PERIOD))
-Fig2a <- lm(S3$X.Gazella ~ poly(S3$PERIOD, 4), data=S3)
-summary(Fig2a) #not working bc X is by time period so non-numeric....
-```
 ```{r}
-library(ggplot2)
-S3 %>% 
-  select("SITE", "PERIOD", "X.Gazella") %>% 
-  filter(PERIOD == "KEB" | PERIOD == "GKEB" | PERIOD == "ENAT" | PERIOD == "LNAT" | PERIOD == "PPNA" | PERIOD == "EPPNB" | PERIOD == "MPPND")
-  arrange("PERIOD") %>%
-  
-  ggplot(aes(x = PERIOD, y = X.Gazella)) +
-  geom_point() +
-  geom_smooth()
+gazella_med <- 
+  S3 |>
+  select("SITE", "PERIOD", "X.Gazella") |>
+  filter(PERIOD == "KEB" | PERIOD == "GKEB" | 
+           PERIOD == "ENAT" | PERIOD == "LNAT" | 
+           PERIOD == "PPNA" | PERIOD == "EPPNB" | 
+           PERIOD == "MPPNB") |>
+  arrange("PERIOD") 
+
 ```
+
 ```{r}
-S3 %>% 
-  ggplot(aes(x = PERIOD, y = X.Gazella)) +
-  geom_point() +
-  geom_smooth()
+gazella_med |>
+  ggplot(data = gazella_med, 
+  mapping = aes(x = PERIOD, y = X.Gazella)) + 
+  geom_pointrange(stat = "summary",
+                  fun = mean,
+                  fun.min = function(z){quantile(z, 0.25)},
+                  fun.max = function(z){quantile(z, 0.75)}) +
+  labs(y = "Proportion Gazelle") +
+  scale_x_discrete(limits = c("KEB", "GKEB", "ENAT", "LNAT", "PPNA", "EPPNB", "MPPNB")) +
+  theme_bw() +
+  stat_smooth(method = "lm", formula = y ~ poly(x, 3), linewidth = 1)
 ```
+
+
 
 ## Replication of Abundance Indices in Chronological Order Figure 2, p. 6
 (May end up removing but may do just to learn for myself)
