@@ -5,16 +5,19 @@ date: "2023-10-26"
 output: html_document
 ---
 
+[INSERT IMAGES!]
+
 # Data Replication Assignment
 
-This replication assignment is based on an article by Munro et al. that discusses the development of agriculture through human management in the Southern Levant.
+This replication assignment is based on an article by Munro et al. 2018 that discusses the development of agriculture through human management in the Southern Levant. A more thorough background is provided below!
 
 ## Background
 
-## Supplementary NISP data from Table 1, p. 3
-(May not have to include)
+The goal of Munro and colleague's analysis is to determine the change in wild Gazelle abundances and how they correlate with the rise of domestic taxa in the Southern Levant. They are expecting a gradual trade-off between wild game (Gazelle) and presently domestic taxa (Goats, sheep, pigs, etc.). This would be shown by relative abundances that show intensive hunting (aka increase in smaller taxa) in active cultural periods prior to this trade-off and then reverse as soon as trade-off begins. Their chronological sequence (for my figure) follows the Kebaran period to the Middle Pre-Pottery Neolithic B. The figure I have chosen specifically, Figure 2a, takes the proportion of Gazelle (calculated from NISP by period/total NISP of Gazelle) and traces the average of this proportion over 7 periods to show whether this trade-off effect on wild taxa takes place. Their results in their Figure 2a show that the proportion of Gazelle increased as intensive hunting occurred, since the gazelle were of the smallest hunted ungulates, and then went back to the level it was and slightly lower, showing that this food source was replaced by something else, likely the domesticated taxa. 
 
-First we must load in the data sets that provide the supplementary data:
+## Supplementary NISP data
+
+First we must load in the data set that provides the supplementary data:
 ```{r}
 library(curl)
 library(tidyverse)
@@ -22,48 +25,63 @@ library(ggplot2)
 
 f <- curl("https://raw.githubusercontent.com/cattuccino/Metcalf-data-replication-assignment/main/AN588%20DataRep%20SuppData%202.csv")
 S3 <- read.csv(f, header = TRUE, sep = ",", stringsAsFactors = FALSE)
-head(S3)
+head(S3) #dataset we are using to form the figure and take descriptive statistics
 
 ```
+X.Gazella = Proportion of Gazelle, which will be our y while PERIOD is our x.
 
-## Replication of Figure 2 with a Polynomial Regression Line and Spearman's Rho Calculation, p. 5
-Plots the relative abundance indices and calculates a Spearman's Rho with associated p-value (Descriptive analysis and 2 Inferential Analyses).
+## Replication of Figure 2a, p. 5
+Plots the relative abundance indices (mean of data for each Period) and associated quantiles (Descriptive analysis and 2 Inferential Analyses).
 
-Uses supplementary data: Figure 2a uses Table S3, 2b uses Table S4, 2c uses S5, and 2d uses S5.
+Uses supplementary data: Figure 2a uses Table S3, so this is the dataset we use, but it requires some manipulating to form their figure. 
 
-First we have to make a plot of the data: (do for each plot)
+For this plot we have to:
+-take a mean of the data for each period for proportion of Gazelle to show the average proportion for each period
+-take the confidence interval based on quantiles of that mean to show the distribution, a wider range would show there is a wider difference in proportion of Gazelle per period
+-plot these means with their quantiles to show the change over chronological period in the proportion of Gazelle.
+
+First we have to make a plot of the data: 
 ```{r}
 library(dplyr)
 ```
 
 ```{r}
 gazella_med <- 
-  S3 |>
-  select("SITE", "PERIOD", "X.Gazella") |>
+  S3 |> #some general piping so we can organize the data from S3 as they do
+  select("SITE", "PERIOD", "X.Gazella") |> #to keep our data together
   filter(PERIOD == "KEB" | PERIOD == "GKEB" | 
            PERIOD == "ENAT" | PERIOD == "LNAT" | 
            PERIOD == "PPNA" | PERIOD == "EPPNB" | 
-           PERIOD == "MPPNB") |>
+           PERIOD == "MPPNB") |> #selects for the particular periods they plot for
   arrange("PERIOD") 
 
 ```
 
+
 ```{r}
 gazella_med |>
   ggplot(data = gazella_med, 
-  mapping = aes(x = as.factor(PERIOD), y = X.Gazella)) + 
+  mapping = aes(x = as.factor(PERIOD), y = X.Gazella)) + #making a plot comparing Period to proportion of Gazelle
   geom_pointrange(stat = "summary",
                   fun = mean,
                   fun.min = function(z){quantile(z, 0.25)},
-                  fun.max = function(z){quantile(z, 0.75)}) +
-  labs(y = "Proportion Gazelle") +
-  scale_x_discrete(limits = c("KEB", "GKEB", "ENAT", "LNAT", "PPNA", "EPPNB", "MPPNB")) +
+                  fun.max = function(z){quantile(z, 0.75)}) + #this part of the calculation I found on a website (cited below), which takes the mean of each point while applying a confidence interval around each mean taken to show the range of distribution it could be (seen if you do not take the means and simply plot the values)
+  labs(y = "Proportion Gazelle", x = "Period") + #labeling x and y axes
+  scale_x_discrete(limits = c("KEB", "GKEB", "ENAT", "LNAT", "PPNA", "EPPNB", "MPPNB")) + #puts the periods in the order they have them in (chronological)
   theme_bw()
 ```
 
+Mean and quantile calculation source: https://stackoverflow.com/questions/41077199/how-to-use-r-ggplot-stat-summary-to-plot-median-and-quartiles .
 
+You will notice there is not a line like there is in their figure. This was because they inserted a "regression line" that appeared to only follow their points to further support their argument that there is a change. When applying this in my code, it did not work the same way because Period does not have any associated numerical values but is categorical with labels, so a line was not drawn because you are not exactly comparing these things you are simply tracing a change over time. I think either figure works in showing their point, but a line simply is not necessary here because it is clear there is change over time. Another reflective note is their choice to take the mean of a the proportion of Gazelle, which seems to really constrict their data for their figure and if you plot without this change in the data (shown below with only the mean w/ quantile chunk removed), you still see the change and it actually helps represent the distribution in data a lot more. It may be useful to show all these points to actually discuss by site each point and what may contribute to these differences.
 
-## Replication of Abundance Indices in Chronological Order Figure 2, p. 6
-(May end up removing but may do just to learn for myself)
+```{r}
+gazella_med |>
+  ggplot(data = gazella_med, 
+  mapping = aes(x = as.factor(PERIOD), y = X.Gazella)) + #making a plot comparing Period to proportion of Gazelle
+  geom_point() +
+  labs(y = "Proportion Gazelle", x = "Period") + #labeling x and y axes
+  scale_x_discrete(limits = c("KEB", "GKEB", "ENAT", "LNAT", "PPNA", "EPPNB", "MPPNB")) + #puts the periods in the order they have them in (chronological)
+  theme_bw()
+```
 
-Edit
