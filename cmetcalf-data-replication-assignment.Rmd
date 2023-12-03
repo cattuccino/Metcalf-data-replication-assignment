@@ -84,7 +84,6 @@ gazella_med |>
 ```
 In comparison to their figure:
 
-<img src="img/Munro et al Figure.png" width="200px" />
 
 Mean and quantile calculation within plot source: https://stackoverflow.com/questions/41077199/how-to-use-r-ggplot-stat-summary-to-plot-median-and-quartiles .
 
