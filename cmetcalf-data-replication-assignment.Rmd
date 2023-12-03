@@ -17,11 +17,12 @@ The goal of Munro and colleague's analysis is to determine the change in wild Ga
 
 ## Supplementary NISP data
 
-First we must load in the data set that provides the supplementary data:
+First we must load in the packages we need for analysis and data set that provides the supplementary data:
 ```{r}
-library(curl)
-library(tidyverse)
-library(ggplot2)
+library(curl) #lets us load dataset
+library(tidyverse) #access different arrange and mutate functions
+library(ggplot2) #allows us to plot data
+library(dplyr) #further uses of data manipulation packages
 
 f <- curl("https://raw.githubusercontent.com/cattuccino/Metcalf-data-replication-assignment/main/AN588%20DataRep%20SuppData%202.csv")
 S3 <- read.csv(f, header = TRUE, sep = ",", stringsAsFactors = FALSE)
@@ -30,8 +31,22 @@ head(S3) #dataset we are using to form the figure and take descriptive statistic
 ```
 X.Gazella = Proportion of Gazelle, which will be our y while PERIOD is our x.
 
+## Taking the mean and quantiles of each point
+In order to do this we need to look at the exact data we want to manipulate and calculate for.
+
+```{r}
+gazella_calc <- S3 |>
+  group_by(PERIOD) |>
+  summarize(gazella_prop = mean("X.Gazella")) |>
+  filter(PERIOD == "KEB" | PERIOD == "GKEB" | 
+           PERIOD == "ENAT" | PERIOD == "LNAT" | 
+           PERIOD == "PPNA" | PERIOD == "EPPNB" | 
+           PERIOD == "MPPNB") |> #selects for the particular periods they plot for
+  arrange("PERIOD")
+```
+
 ## Replication of Figure 2a, p. 5
-Plots the relative abundance indices (mean of data for each Period) and associated quantiles (Descriptive analysis and 2 Inferential Analyses).
+Plots the relative abundance indices (mean of data for each Period) and associated quantiles (2 Descriptive analyses).
 
 Uses supplementary data: Figure 2a uses Table S3, so this is the dataset we use, but it requires some manipulating to form their figure. 
 
@@ -41,9 +56,6 @@ For this plot we have to:
 -plot these means with their quantiles to show the change over chronological period in the proportion of Gazelle.
 
 First we have to make a plot of the data: 
-```{r}
-library(dplyr)
-```
 
 ```{r}
 gazella_med <- 
@@ -70,9 +82,15 @@ gazella_med |>
   scale_x_discrete(limits = c("KEB", "GKEB", "ENAT", "LNAT", "PPNA", "EPPNB", "MPPNB")) + #puts the periods in the order they have them in (chronological)
   theme_bw()
 ```
+In comparison to their figure:
 
-Mean and quantile calculation source: https://stackoverflow.com/questions/41077199/how-to-use-r-ggplot-stat-summary-to-plot-median-and-quartiles .
+<img src="img/Munro et al Figure.png" width="200px" />
 
+Mean and quantile calculation within plot source: https://stackoverflow.com/questions/41077199/how-to-use-r-ggplot-stat-summary-to-plot-median-and-quartiles .
+
+## Reflection
+
+### 1. Lack of a Regression Line
 You will notice there is not a line like there is in their figure. This was because they inserted a "regression line" that appeared to only follow their points to further support their argument that there is a change. When applying this in my code, it did not work the same way because Period does not have any associated numerical values but is categorical with labels, so a line was not drawn because you are not exactly comparing these things you are simply tracing a change over time. I think either figure works in showing their point, but a line simply is not necessary here because it is clear there is change over time. Another reflective note is their choice to take the mean of a the proportion of Gazelle, which seems to really constrict their data for their figure and if you plot without this change in the data (shown below with only the mean w/ quantile chunk removed), you still see the change and it actually helps represent the distribution in data a lot more. It may be useful to show all these points to actually discuss by site each point and what may contribute to these differences.
 
 ```{r}
@@ -84,4 +102,9 @@ gazella_med |>
   scale_x_discrete(limits = c("KEB", "GKEB", "ENAT", "LNAT", "PPNA", "EPPNB", "MPPNB")) + #puts the periods in the order they have them in (chronological)
   theme_bw()
 ```
-
+### 2. Testing if Data Correlation is Significant
+Also in my own figure I am lacking the inferential statistic that the regression line would have offered, but I have chosen to replace this with a chi-squared statistic to see if the changes in gazella proportion actually correlates with period. Using the gazella_med dataframe, we will test gazella proportion by period:
+```{r}
+chisq.test(gazella_med$PERIOD, gazella_med$X.Gazella, correct = FALSE)
+```
+We get an insignificant p-value as we can see with p>0.05, inidcating this association done by the authors may not be entirely accurate in reflecting the data.
