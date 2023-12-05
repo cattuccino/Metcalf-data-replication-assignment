@@ -5,7 +5,7 @@ date: "2023-10-26"
 output: html_document
 ---
 
-[INSERT IMAGES!]
+![Silly Standing Gazelle!](https://github.com/cattuccino/Metcalf-data-replication-assignment/raw/main/Standing%20Gazelle.png)
 
 # Data Replication Assignment
 
@@ -76,9 +76,10 @@ gazella_med |>
   scale_x_discrete(limits = c("KEB", "GKEB", "ENAT", "LNAT", "PPNA", "EPPNB", "MPPNB")) + #puts the periods in the order they have them in (chronological)
   theme_bw()
 ```
+
 In comparison to their figure:
 
-
+![Munro et al. 2018 Figure](https://github.com/cattuccino/Metcalf-data-replication-assignment/raw/main/Munro%20et%20al.%20Figure.png)
 
 Mean and quantile calculation within plot source: https://stackoverflow.com/questions/41077199/how-to-use-r-ggplot-stat-summary-to-plot-median-and-quartiles .
 
@@ -96,6 +97,7 @@ gazella_med |>
   scale_x_discrete(limits = c("KEB", "GKEB", "ENAT", "LNAT", "PPNA", "EPPNB", "MPPNB")) + #puts the periods in the order they have them in (chronological)
   theme_bw()
 ```
+
 ### 2. Testing if Data Correlation is Significant
 Also in my own figure I am lacking the inferential statistic that the regression line would have offered, but I have chosen to replace this with a chi-squared statistic to see if the changes in gazella proportion actually correlates with period. Using the gazella_med dataframe, we will test gazella proportion by period:
 ```{r}
