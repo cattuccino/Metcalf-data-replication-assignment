@@ -32,17 +32,11 @@ head(S3) #dataset we are using to form the figure and take descriptive statistic
 X.Gazella = Proportion of Gazelle, which will be our y while PERIOD is our x.
 
 ## Taking the mean and quantiles of each point
-In order to do this we need to look at the exact data we want to manipulate and calculate for.
+In order to do this we need to group each Gazella proportion by its associated period and then take the mean of all of those proportions.
 
 ```{r}
-gazella_calc <- S3 |>
-  group_by(PERIOD) |>
-  summarize(gazella_prop = mean("X.Gazella")) |>
-  filter(PERIOD == "KEB" | PERIOD == "GKEB" | 
-           PERIOD == "ENAT" | PERIOD == "LNAT" | 
-           PERIOD == "PPNA" | PERIOD == "EPPNB" | 
-           PERIOD == "MPPNB") |> #selects for the particular periods they plot for
-  arrange("PERIOD")
+gazella_calc <- summarise(group_by(S3, PERIOD), mean(X.Gazella)) #it groups the output (X.Gazella) by Period from the dataset and then summarises these in a table for us to look at the data we will use for the next figure
+gazella_calc
 ```
 
 ## Replication of Figure 2a, p. 5
@@ -83,6 +77,7 @@ gazella_med |>
   theme_bw()
 ```
 In comparison to their figure:
+
 
 
 Mean and quantile calculation within plot source: https://stackoverflow.com/questions/41077199/how-to-use-r-ggplot-stat-summary-to-plot-median-and-quartiles .
